@@ -29,7 +29,7 @@ async def http_handler(request: Request):
     request_json = await request.json()
     update = Update.model_validate(request_json)
     print(f"Text Message: {update.message.text}")
-    response = await dispatcher.feed_raw_update(bot=bot, update=request_json)
+    response = await dispatcher.feed_update(bot=bot, update=update)
 
     return str(response)
 
