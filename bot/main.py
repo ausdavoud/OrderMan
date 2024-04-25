@@ -8,8 +8,8 @@ from utils import get_bot, get_dispatcher
 
 load_dotenv()
 
-bot = "BOTSTR"
-dispatcher = "DISPATCHER STR"
+bot = None
+dispatcher = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
