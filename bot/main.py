@@ -3,21 +3,17 @@ from contextlib import asynccontextmanager
 from aiogram.types import Update
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-from utils import get_bot, get_dispatcher, set_webhook
+from utils import get_bot, get_dispatcher
 
 load_dotenv()
-
-bot, dispatcher = None, None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global bot, dispatcher
+    print("[*] Setting Bot, Webhook and Dispatcher ...")
     bot = await get_bot()
     dispatcher = get_dispatcher()
-
-    print("[*] Set webhook url triggered ...")
-    await set_webhook(bot=bot)
 
     yield
 
