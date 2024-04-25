@@ -8,10 +8,6 @@ from contextlib import asynccontextmanager
 from handlers import setup_handlers
 from __init__ import set_bot_commands
 
-bot_commands = (
-    ("order", "Make a new order")
-)
-
 
 load_dotenv()
 
