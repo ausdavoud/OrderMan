@@ -11,7 +11,7 @@ bot, dispatcher = None, None
 
 
 @asynccontextmanager
-async def lifetime(app: FastAPI):
+async def lifespan(app: FastAPI):
     global bot, dispatcher
     bot = await get_bot()
     dispatcher = get_dispatcher()
@@ -22,7 +22,7 @@ async def lifetime(app: FastAPI):
     yield
 
 
-app = FastAPI(lifetime=lifetime)
+app = FastAPI(lifespan=lifespan)
 
 
 @app.post("/open")
