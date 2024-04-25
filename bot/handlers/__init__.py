@@ -1,10 +1,7 @@
 from aiogram import Dispatcher
 
-from . import (
-    order
-)
+from . import order
+
 
 def setup_handlers(dp: Dispatcher):
-    dp.include_routers(
-        order.router
-    )
+    dp.include_routers(order.router)
