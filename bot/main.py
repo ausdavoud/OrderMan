@@ -6,22 +6,11 @@ from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 
 from handlers import setup_handlers
-
-from aiogram.types import BotCommand, BotCommandScopeChat
+from __init__ import set_bot_commands
 
 bot_commands = (
     ("order", "Make a new order")
 )
-
-async def set_bot_commands(bot: Bot):
-    wrapped_commands = list(
-        BotCommand(command="/" + cmd, description=text)
-        for cmd, text in bot_commands
-    )
-    await bot.set_my_commands(
-        wrapped_commands,
-        scope=BotCommandScopeChat()
-    )
 
 
 load_dotenv()

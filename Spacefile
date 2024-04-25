@@ -1,9 +1,9 @@
 # Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
 v: 0
-app_name: T-Bot main
+app_name: MyOrder
 micros:
-  - name: tbot-main
-    src: tbot-main
+  - name: bot
+    src: bot
     engine: python3.9
     dev: uvicorn main:app --reload
     primary: true
