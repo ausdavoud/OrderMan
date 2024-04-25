@@ -51,6 +51,7 @@ async def http_handler(request: Request):
     
     update = Update.model_validate(await request.json())
     print(f"Update Text: {update.message.text}")
+    await dispatcher.feed_raw_update(bot, await request.json())
     # Try parsing and handling text messages from telegram bot-api
     try:
         # Parse input message from JSON body
