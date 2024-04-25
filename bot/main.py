@@ -1,12 +1,15 @@
 from contextlib import asynccontextmanager
 
 from aiogram.types import Update
+from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from utils import get_bot, get_dispatcher
 
 load_dotenv()
 
+bot = "BOTSTR"
+dispatcher = "DISPATCHER STR"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

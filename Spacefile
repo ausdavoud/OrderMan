@@ -5,6 +5,7 @@ micros:
   - name: bot
     src: bot
     engine: python3.9
+    run: uvicorn main:app
     dev: uvicorn main:app --reload
     primary: true
     public_routes:
