@@ -2,7 +2,6 @@ import re
 from datetime import datetime
 
 import pytz
-
 from loggers import BotLogger
 
 logging = BotLogger(__name__)
@@ -38,33 +37,25 @@ def orders_from_text(text: str) -> tuple[dict]:
     description_pattern = r"توضیحات:\s*(.*)"
 
     customer = search_match(customer_pattern, text)
-    logging.info("Customer found in text.")
     address = search_match(address_pattern, text)
-    logging.info("Address found in text.")
     phone_number = search_match(phone_number_pattern, text)
-    logging.info("Phone Number found in text.")
-
     delivery_way = search_match(delivery_way_pattern, text)
-    logging.info("Delivery Way found in text.")
-
     delivery_fee = float(search_match(delivery_fee_pattern, text))
-    logging.info("Delivery Fee found in text.")
-
     total_fee = float(search_match(total_fee_pattern, text))
-    logging.info("Total Fee found in text.")
-
     description = search_match(description_pattern, text)
-    logging.info("Description found in text.")
 
+    logging.info("Extracted data from text.")
 
     items = list()
     breads = list()
     for item_match in re.finditer(item_pattern, text):
         item_name, item_fee, is_bread = item_match.groups()
         items.append([item_name, float(item_fee)])
-        logging.info(f"{is_bread = }")
+
         if is_bread == "#نان":
             breads.append([item_name, float(item_fee)])
+
+    tehran_time = tehran_time_now()
 
     items_dict = {
         "Customer": customer,
@@ -75,21 +66,10 @@ def orders_from_text(text: str) -> tuple[dict]:
         "Delivery Fee": delivery_fee,
         "Total Fee": total_fee,
         "Description": description,
-        "Date": tehran_time_now(),
+        "Date": tehran_time,
     }
 
-    breads_dict = {
-        "Customer": customer,
-        "Items": breads,
-        "Address": address,
-        "Phone Number": phone_number,
-        "Delivery Way": delivery_way,
-        "Delivery Fee": delivery_fee,
-        "Total Fee": total_fee,
-        "Description": description,
-        "Date": tehran_time_now(),
-    }
+    breads_dict = items_dict.copy()
+    breads_dict["items"] = breads
 
     return items_dict, breads_dict
-
-
