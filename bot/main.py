@@ -33,7 +33,7 @@ app = FastAPI(lifespan=lifespan)
 async def http_handler(request: Request):
     logging.info("Message Received")
     request_json = await request.json()
-    logging.inf("Converting json to Pydantic Update")
+    logging.info("Converting json to Pydantic Update")
     update = Update.model_validate(request_json)
     logging.info(f"Text Message: {update.message.text}")
     logging.info("Sending answer")
