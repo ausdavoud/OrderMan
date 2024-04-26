@@ -4,3 +4,4 @@ requests
 deta
 python-dotenv
 aiogram
+pytz

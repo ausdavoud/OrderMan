@@ -5,6 +5,7 @@ from loggers import BotLogger
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from utils import get_bot, get_dispatcher
+import asyncio
 
 load_dotenv()
 
@@ -25,11 +26,11 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    await bot.delete_webhook()
-    logging.info("Webhook deleted.")
+    # await bot.delete_webhook()
+    # logging.info("Webhook deleted.")
 
-    await bot.close()
-    logging.info("Bot closed.")
+    # await bot.close()
+    # logging.info("Bot closed.")
 
 
 app = FastAPI(lifespan=lifespan)
@@ -41,6 +42,7 @@ async def http_handler(request: Request):
     request_json = await request.json()
     logging.info("Converting json to Pydantic Update.")
     update = Update.model_validate(request_json)
+    logging.info(f"Update: {str(update)}")
     logging.info(f"Text Message: '{update.message.text}'.")
     logging.info("Sending answer.")
     response = await dispatcher.feed_update(bot=bot, update=update)
