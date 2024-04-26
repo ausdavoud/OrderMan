@@ -1,11 +1,10 @@
 from contextlib import asynccontextmanager
 
 from aiogram.types import Update
-from loggers import BotLogger
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
+from loggers import BotLogger
 from utils import get_bot, get_dispatcher
-import asyncio
 
 load_dotenv()
 
