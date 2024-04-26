@@ -18,38 +18,38 @@ dispatcher = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global bot, dispatcher
-    logging.info("Setting Bot, Webhook and Dispatcher")
+    logging.info("Setting Bot, Webhook and Dispatcher.")
     bot = await get_bot()
     dispatcher = get_dispatcher()
-    logging.info("Bot and Dispatcher were set")
+    logging.info("Bot and Dispatcher were set successfully.")
 
     yield
 
     await bot.delete_webhook()
-    logging.info("Webhook deleted")
+    logging.info("Webhook deleted.")
 
     await bot.close()
-    logging.info("Bot closed")
+    logging.info("Bot closed.")
 
-    
+
 app = FastAPI(lifespan=lifespan)
 
 
 @app.post("/open")
 async def http_handler(request: Request):
-    logging.info("Message Received")
+    logging.info("Message Received.")
     request_json = await request.json()
-    logging.info("Converting json to Pydantic Update")
+    logging.info("Converting json to Pydantic Update.")
     update = Update.model_validate(request_json)
-    logging.info(f"Text Message: {update.message.text}")
-    logging.info("Sending answer")
+    logging.info(f"Text Message: '{update.message.text}'.")
+    logging.info("Sending answer.")
     response = await dispatcher.feed_update(bot=bot, update=update)
-    logging.info("Answer was sent")
+    logging.info("Answer was sent.")
     return str(response)
 
 
 @app.get("/")
 async def get_webhook_url(request: Request):
-    logging.info("Fetching webhook info")
+    logging.info("Fetching webhook info.")
     info = await bot.get_webhook_info()
     return {"webhook url": info.url}
