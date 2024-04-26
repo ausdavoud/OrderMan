@@ -3,6 +3,9 @@ import os
 from __init__ import set_bot_commands
 from aiogram import Bot, Dispatcher
 from handlers import setup_handlers
+from loggers import BotLogger
+
+logger = BotLogger(__name__)
 
 
 class TokenException(Exception):
@@ -35,14 +38,14 @@ def get_dispatcher() -> Dispatcher:
 
 async def set_webhook(bot: Bot):
     HOST = os.getenv("DETA_SPACE_APP_HOSTNAME")
-    # HOST = "tel_tbot_based-1-x2228392.deta.app"
+
     webhook_url = f"https://{HOST}/open"
 
     webhook_info = await bot.get_webhook_info()
 
     if webhook_url != webhook_info.url:
-        print(f"Webhook url is already set to {webhook_info.url}")
+        logger.info(f"Webhook is already set to {webhook_info.url}")
     else:
         await bot.set_webhook(webhook_url)
         webhook_info_after_set = await bot.get_webhook_info()
-        print(f"Webhook url was set to {webhook_info_after_set.url}")
+        logger.info(f"Webhook was set to {webhook_info_after_set.url}")
