@@ -36,12 +36,19 @@ app = FastAPI(lifespan=lifespan)
 
 
 @app.post("/open")
-async def http_handler(request: Request):
+async def update_handler(request: Request):
     logging.info("Message Received.")
     request_json = await request.json()
+    logging.info(f"Request json: {request_json}")
     logging.info("Converting json to Pydantic Update.")
     update = Update.model_validate(request_json)
-    logging.info(f"Update: {str(update)}")
+    logging.info("JSON converted to Pydantic Update.")
+    if update.message is None:
+        try:
+            raise Exception("Message is Empty.")
+        except Exception as e:
+            logging.exception("Message is empty (has no text).")
+    
     logging.info(f"Text Message: '{update.message.text}'.")
     logging.info("Sending answer.")
     response = await dispatcher.feed_update(bot=bot, update=update)

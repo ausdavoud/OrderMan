@@ -14,3 +14,12 @@ micros:
       env:
         - name: TELEGRAM_BOT_TOKEN
           description: Telegram Bot Key
+
+  - name: deta
+    src: deta
+    engine: python3.9
+    run: uvicorn main:app
+    dev: uvicorn main:app --reload
+    public_routes:
+      - "/put_items"
+      - "/put_breads"

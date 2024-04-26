@@ -20,6 +20,3 @@ def test_orders_from_text():
         file.write(str(items_dict))
 
     pprint(f"{items_dict = }\n\n\n{breads_dict = }")
-
-
-test_orders_from_text()
