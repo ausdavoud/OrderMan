@@ -27,28 +27,30 @@ def orders_from_text(text: str) -> tuple[dict]:
     returns (items_dict, breads_dict)
     """
     # Regex Patterns
-    customer_pattern = r"مشتری:\s*(.*)"
-    item_pattern = r"(.*)\s*\(([^)]+)\)\s*(#نان)?"
-    address_pattern = r"آدرس:\s*(.*)"
-    phone_number_pattern = r"شماره تماس:\s*(.*)"
-    delivery_way_pattern = r"شیوه ارسال:\s*(.*)"
-    delivery_fee_pattern = r"هزینه ارسال:\s*(.*)"
-    total_fee_pattern = r"مبلغ قابل پرداخت:\s*(.*)"
-    description_pattern = r"توضیحات:\s*(.*)"
+    patterns_dict = {
+        "customer": r"مشتری:\s*(.*)",
+        "items": r"(.*)\s*\(([^)]+)\)\s*(#نان)?",
+        "address": r"آدرس:\s*(.*)",
+        "phone_number": r"شماره تماس:\s*(.*)",
+        "delivery_way": r"شیوه ارسال:\s*(.*)",
+        "delivery_fee": r"هزینه ارسال:\s*(.*)",
+        "total_fee": r"مبلغ قابل پرداخت:\s*(.*)",
+        "description": r"توضیحات:\s*(.*)",
+    }
 
-    customer = search_match(customer_pattern, text)
-    address = search_match(address_pattern, text)
-    phone_number = search_match(phone_number_pattern, text)
-    delivery_way = search_match(delivery_way_pattern, text)
-    delivery_fee = float(search_match(delivery_fee_pattern, text))
-    total_fee = float(search_match(total_fee_pattern, text))
-    description = search_match(description_pattern, text)
+    order_info = {}
+    for field, pattern in patterns_dict.items():
+        order_info[field] = search_match(pattern, text)
+        logging.info(f"`{field}` extracted from text.")
 
-    logging.info("Extracted data from text.")
+    order_info["delivery_fee"] = float(order_info["delivery_fee"])
+    order_info["total_fee"] = float(order_info["total_fee"])
+
+    logging.info("Finished extracting data from text.")
 
     items = list()
     breads = list()
-    for item_match in re.finditer(item_pattern, text):
+    for item_match in re.finditer(patterns_dict["items"], text):
         item_name, item_fee, is_bread = item_match.groups()
         items.append([item_name, float(item_fee)])
 
@@ -58,15 +60,9 @@ def orders_from_text(text: str) -> tuple[dict]:
     tehran_time = tehran_time_now()
 
     items_dict = {
-        "Customer": customer,
-        "Items": items,
-        "Address": address,
-        "Phone Number": phone_number,
-        "Delivery Way": delivery_way,
-        "Delivery Fee": delivery_fee,
-        "Total Fee": total_fee,
-        "Description": description,
-        "Date": tehran_time,
+        **order_info,
+        "items": items,
+        "date": tehran_time,
     }
 
     breads_dict = items_dict.copy()

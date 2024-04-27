@@ -1,3 +1,3 @@
-from core.detabase import get_deta_db
-
-__all__ = ["get_deta_db"]
+from core.detabase import DetaBase
+from core.detadrive import DetaDrive
+__all__ = ["DetaBase", "DetaDrive"]

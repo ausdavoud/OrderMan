@@ -3,3 +3,4 @@ deta
 uvicorn
 python-dotenv
 aiohttp
+pytz

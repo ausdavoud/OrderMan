@@ -22,7 +22,7 @@ def get_token() -> str:
 
 async def get_bot() -> Bot:
     TOKEN = get_token()
-    bot = Bot(token=TOKEN, parse_mode="HTML")
+    bot = Bot(token=TOKEN, parse_mode="Markdown")
     await set_bot_commands(bot=bot)
     await set_webhook(bot=bot)
     return bot
