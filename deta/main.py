@@ -1,22 +1,37 @@
 from contextlib import asynccontextmanager
+from datetime import datetime
 
+import pytz
 from core import DetaBase, DetaDrive
 from deta_csv import merge_list_csv
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from loggers import DetaLogger
+from pydantic import BaseModel
+from aiohttp import ClientSession
 
 logging = DetaLogger(__name__)
 
 
 deta_bases = None
-deta_drive = None
+items_deta_drive = None
+breads_deta_drive = None
+
+
+def tehran_time_now() -> str:
+    tehran_tz = pytz.timezone("Asia/Tehran")
+    current_time = datetime.now(tehran_tz)
+    formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    return formatted_time
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global deta_bases, deta_drive
+    global deta_bases, items_deta_drive, breads_deta_drive
     deta_bases = DetaBase("items_db", "breads_db")
-    deta_drive = DetaDrive("csv")
+    items_deta_drive = DetaDrive("items")
+    breads_deta_drive = DetaDrive("breads")
     logging.info("DetaBases/Drives were set.")
 
     yield
@@ -47,29 +62,77 @@ async def put_breads(breads_dict: dict):
         return {"error message": f"Dict already exists. {e}"}
 
 
-@app.get("/update_csv")
-async def update_csv():
-    new_rows = await deta_bases.get_itemsdb_new_rows()
-    if not new_rows:
-        return {"result": "ok"}
+def pop_csv_column(data: list[dict]):
+    for row in data:
+        row.pop("csv")
 
-    for new_row in new_rows:
-        new_row.pop("csv")
 
-    logging.info(f"{new_rows}")
+async def core_update_csv(drive, csv_name, new_rows: list[dict]):
+    pop_csv_column(new_rows)
 
-    csv_file = deta_drive.get_last_csv()
-    logging.info(f"{csv_file = }")
+    csv_file = drive.get_last_csv()
 
-    # merge new rows and csv
     new_string_io_data = merge_list_csv(csv_file, new_rows)
 
     encoded = str(new_string_io_data.getvalue()).encode("utf-8")
-    deta_drive.save_csv("1_csv.csv", encoded)
-    # upload the new csv with date of now
+    current_time = tehran_time_now()
+    drive.save_csv(f"{current_time} - {csv_name}.csv", encoded)
+
+
+@app.get("/update_csv")
+async def update_csv():
+    items_new_rows = await deta_bases.get_db_new_rows(deta_bases.items_db)
+    breads_new_rows = await deta_bases.get_db_new_rows(deta_bases.breads_db)
+
+    if items_deta_drive:
+        await core_update_csv(
+            drive=items_deta_drive, csv_name="items", new_rows=items_new_rows
+        )
+
+    if breads_new_rows:
+        await core_update_csv(
+            drive=breads_deta_drive, csv_name="breads", new_rows=breads_new_rows
+        )
+
+    await deta_bases.mark_csv_as_read(deta_bases.items_db, items_new_rows)
+    await deta_bases.mark_csv_as_read(deta_bases.breads_db, breads_new_rows)
+
     return {"result": "ok"}
 
 
-@app.get("/get_csv")
-async def get_csv():
-    pass
+class ActionEvent(BaseModel):
+    id: str
+    trigger: str
+
+
+class Action(BaseModel):
+    event: ActionEvent
+
+
+@app.post("/__space/v0/actions")
+async def actions(action: Action):
+    logging.info("Triggered Automatic Action to Update.")
+    if action.event.id == "update":
+        await update_csv()
+        # async with ClientSession() as session:
+        #     async with session.get("/update_csv") as repsonse:
+        #         return "OK"
+
+@app.get("/get_items_csv")
+async def get_items_csv():
+    csv_bytes = items_deta_drive.get_last_csv()
+    csv_name = items_deta_drive.get_last_csv_name()
+    return {
+        "file_name": csv_name,
+        "content": FileResponse(csv_bytes, media_type="application/octet-stream"),
+    }
+
+
+@app.get("/get_breads_csv")
+async def get_breads_csv():
+    csv_bytes = breads_deta_drive.get_last_csv()
+    csv_name = breads_deta_drive.get_last_csv_name()
+    return {
+        "file_name": csv_name,
+        "content": FileResponse(csv_bytes, media_type="application/octet-stream"),
+    }

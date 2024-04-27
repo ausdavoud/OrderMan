@@ -64,7 +64,7 @@ async def confirm_order(message: Message, state: FSMContext) -> None:
     logging.info("Received confirmation.")
 
     HOST = os.getenv("DETA_SPACE_APP_HOSTNAME")
-    HOST = "tbotmain-1-v6789165.deta.app"
+    # HOST = "tbotmain-1-v6789165.deta.app"
     post_items_url = f"https://{HOST}/deta/put_items"
     post_breads_url = f"https://{HOST}/deta/put_breads"
     items_dict = data["items_dict"]

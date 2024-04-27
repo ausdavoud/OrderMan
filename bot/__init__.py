@@ -3,6 +3,8 @@ from aiogram.types import BotCommand, BotCommandScopeDefault
 
 bot_commands = [
     ("order", "Make a new order"),
+    ("get_csv", "Get last csv files (sheets)"),
+    ("update_csv", "Update the csv files (sheets)")
 ]
 
 

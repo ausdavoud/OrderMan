@@ -37,7 +37,7 @@ def get_dispatcher() -> Dispatcher:
 
 async def set_webhook(bot: Bot):
     HOST = os.getenv("DETA_SPACE_APP_HOSTNAME")
-    HOST = "tbotmain-1-v6789165.deta.app"
+    # HOST = "tbotmain-1-v6789165.deta.app"
 
     webhook_url = f"https://{HOST}/open"
 

@@ -7,7 +7,7 @@ micros:
     engine: python3.9
     run: uvicorn main:app
     dev: uvicorn main:app --reload
-    # primary: true
+    primary: true
     public_routes:
       - "/open"
     presets:
@@ -17,13 +17,20 @@ micros:
 
   - name: deta
     src: deta
-    primary: true
-    path: deta
+    # primary: true
     engine: python3.9
     run: uvicorn main:app
     dev: uvicorn main:app --reload
+    actions:
+      - id: "update"
+        name: "Update"
+        description: "Adds unsaved data to csv file"
+        trigger: "schedule"
+        default_interval: "0 12 * * *"
+      
     public_routes:
       - "/put_items"
       - "/put_breads"
       - "/update_csv"
-      - "/get_csv"
+      - "/get_breads_csv"
+      - "/get_items_csv"
