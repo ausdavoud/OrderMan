@@ -31,7 +31,8 @@ micros:
     public_routes:
       - "/put_items"
       - "/put_breads"
+      - "/put_preorders"
       - "/update_csv"
       - "/get_breads_csv"
       - "/get_items_csv"
-      - "/get_preorders.csv"
+      - "/get_preorders_csv"

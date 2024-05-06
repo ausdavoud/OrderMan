@@ -12,9 +12,13 @@ from pydantic import BaseModel
 logging = DetaLogger(__name__)
 
 
-deta_bases = None
+items_db = None
+breads_db = None
+pre_orders_db = None
+
 items_deta_drive = None
 breads_deta_drive = None
+pre_orders_deta_drive = None
 
 
 def tehran_time_now() -> str:
@@ -27,15 +31,22 @@ def tehran_time_now() -> str:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global deta_bases, items_deta_drive, breads_deta_drive
-    deta_bases = DetaBase("items_db", "breads_db")
+    global items_db, breads_db, pre_orders_db, items_deta_drive, breads_deta_drive, pre_orders_deta_drive
+    items_db = DetaBase("items_db")
+    breads_db = DetaBase("breads_db")
+    pre_orders_db = DetaBase("items_db")
+
     items_deta_drive = DetaDrive("items")
     breads_deta_drive = DetaDrive("breads")
+    pre_orders_deta_drive = DetaDrive("pre_orders")
+
     logging.info("DetaBases/Drives were set.")
 
     yield
 
-    await deta_bases.close()
+    await items_db.close()
+    await breads_db.close()
+    await pre_orders_db.close()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -45,7 +56,7 @@ app = FastAPI(lifespan=lifespan)
 async def put_items(items_dict: dict):
     logging.info("Dict was received by router.")
     try:
-        result = await deta_bases.items_db.put(items_dict)
+        result = await items_db.db.put(items_dict)
         return {"result": result}
     except Exception:
         return {"error message": "Dict already exists."}
@@ -55,10 +66,20 @@ async def put_items(items_dict: dict):
 async def put_breads(breads_dict: dict):
     logging.info("Dict was received by router.")
     try:
-        result = await deta_bases.breads_db.put(breads_dict)
+        result = await breads_db.db.put(breads_dict)
         return {"result": result}
     except Exception as e:
         return {"error message": f"Dict already exists. {e}"}
+    
+
+@app.post("/put_preorders")
+async def put_pre_orders(pre_orders_dict: dict):
+    logging.info("Request was received by put_preorders router")
+    try:
+        result = await pre_orders_db.db.put(pre_orders_dict)
+        return {"result": result}
+    except Exception as e:
+        return {"error message": f"Dict already exists. Error:{e}"}
 
 
 def pop_csv_column(data: list[dict]):
@@ -80,8 +101,9 @@ async def core_update_csv(drive, csv_name, new_rows: list[dict]):
 
 @app.get("/update_csv")
 async def update_csv():
-    items_new_rows = await deta_bases.get_db_new_rows(deta_bases.items_db)
-    breads_new_rows = await deta_bases.get_db_new_rows(deta_bases.breads_db)
+    items_new_rows = await items_db.fetch_new_records()
+    breads_new_rows = await breads_db.fetch_new_records()
+    pre_orders_new_rows = await pre_orders_db.fetch_new_records()
 
     if items_deta_drive:
         await core_update_csv(
@@ -93,8 +115,14 @@ async def update_csv():
             drive=breads_deta_drive, csv_name="breads", new_rows=breads_new_rows
         )
 
-    await deta_bases.mark_csv_as_read(deta_bases.items_db, items_new_rows)
-    await deta_bases.mark_csv_as_read(deta_bases.breads_db, breads_new_rows)
+    if pre_orders_new_rows:
+        await core_update_csv(
+            drive=pre_orders_deta_drive, csv_name="preorders.csv", new_rows=pre_orders_new_rows
+        )
+
+    await items_db.mark_csv_as_read(items_new_rows)
+    await breads_db.mark_csv_as_read(breads_new_rows)
+    await pre_orders_db.mark_csv_as_read(pre_orders_new_rows)
 
     return {"result": "ok"}
 
@@ -113,9 +141,6 @@ async def actions(action: Action):
     logging.info("Triggered Automatic Action to Update.")
     if action.event.id == "update":
         await update_csv()
-        # async with ClientSession() as session:
-        #     async with session.get("/update_csv") as repsonse:
-        #         return "OK"
 
 
 @app.get("/get_items_csv")
@@ -135,4 +160,13 @@ async def get_breads_csv():
     return {
         "file_name": csv_name,
         "content": FileResponse(csv_bytes, media_type="application/octet-stream"),
+    }
+
+@app.get("/get_breads_csv")
+async def get_pre_orders_csv():
+    csv_bytes = pre_orders_deta_drive.get_last_csv()
+    csv_name = pre_orders_deta_drive.get_last_csv_name()
+    return {
+        "file_name": csv_name,
+        "content": FileResponse(csv_bytes, media_type="application/octet-stream")
     }
