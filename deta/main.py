@@ -8,7 +8,6 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from loggers import DetaLogger
 from pydantic import BaseModel
-from aiohttp import ClientSession
 
 logging = DetaLogger(__name__)
 
@@ -117,6 +116,7 @@ async def actions(action: Action):
         # async with ClientSession() as session:
         #     async with session.get("/update_csv") as repsonse:
         #         return "OK"
+
 
 @app.get("/get_items_csv")
 async def get_items_csv():
