@@ -50,7 +50,8 @@ async def process_order(message: Message, state: FSMContext) -> None:
     last_message = await message.answer(
         text,
         reply_markup=ReplyKeyboardMarkup(
-            keyboard=[[KeyboardButton(text="بله"), KeyboardButton(text="خیر")]]
+            keyboard=[[KeyboardButton(text="بله"), KeyboardButton(text="خیر")]],
+            resize_keyboard=True
         ),
     )
     await data["send_order_message"].delete()
