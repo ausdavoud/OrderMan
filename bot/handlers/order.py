@@ -12,7 +12,10 @@ from aiogram.types import (
 )
 from aiohttp import ClientSession
 from core import deta_result_to_message, order_dict_to_message, orders_from_text
+from dotenv import load_dotenv
 from loggers import BotLogger
+
+load_dotenv(override=True)
 
 logging = BotLogger(__name__)
 
@@ -51,7 +54,7 @@ async def process_order(message: Message, state: FSMContext) -> None:
         text,
         reply_markup=ReplyKeyboardMarkup(
             keyboard=[[KeyboardButton(text="بله"), KeyboardButton(text="خیر")]],
-            resize_keyboard=True
+            resize_keyboard=True,
         ),
     )
     await data["send_order_message"].delete()
@@ -65,7 +68,6 @@ async def confirm_order(message: Message, state: FSMContext) -> None:
     logging.info("Received confirmation.")
 
     HOST = os.getenv("DETA_SPACE_APP_HOSTNAME")
-    # HOST = "tbotmain-1-v6789165.deta.app"
     post_items_url = f"https://{HOST}/deta/put_items"
     post_breads_url = f"https://{HOST}/deta/put_breads"
     items_dict = data["items_dict"]
@@ -94,7 +96,9 @@ async def confirm_order(message: Message, state: FSMContext) -> None:
         logging.info(f"{last_message = }")
         await message.answer(result, reply_markup=ReplyKeyboardRemove())
     elif data["confirm"] == "خیر":
-        await message.answer("سفارش را تایید نکردید!", reply_markup=ReplyKeyboardRemove())
+        await message.answer(
+            "سفارش را تایید نکردید!", reply_markup=ReplyKeyboardRemove()
+        )
 
     await last_message.delete()
     await message.delete()

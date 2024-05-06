@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from loggers import BotLogger
 from utils import get_bot, get_dispatcher
 
-load_dotenv()
+load_dotenv(override=True)
 
 
 logging = BotLogger(__name__)

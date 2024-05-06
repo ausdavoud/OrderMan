@@ -1,8 +1,12 @@
 import os
+
 from __init__ import set_bot_commands
 from aiogram import Bot, Dispatcher
+from dotenv import load_dotenv
 from handlers import setup_handlers
 from loggers import BotLogger
+
+load_dotenv(override=True)
 
 logger = BotLogger(__name__)
 
@@ -37,7 +41,6 @@ def get_dispatcher() -> Dispatcher:
 
 async def set_webhook(bot: Bot):
     HOST = os.getenv("DETA_SPACE_APP_HOSTNAME")
-    # HOST = "tbotmain-1-v6789165.deta.app"
 
     webhook_url = f"https://{HOST}/open"
 

@@ -5,7 +5,10 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import BufferedInputFile, Message
 from aiohttp import ClientSession
+from dotenv import load_dotenv
 from loggers import BotLogger
+
+load_dotenv(override=True)
 
 logging = BotLogger(__name__)
 
@@ -17,11 +20,8 @@ async def command_start(message: Message, state: FSMContext) -> None:
     logging.info("Entered commands handler -> /get_csv")
 
     HOST = os.getenv("DETA_SPACE_APP_HOSTNAME")
-    # HOST = "tbotmain-1-v6789165.deta.app"
     get_items_url = f"https://{HOST}/deta/get_breads_csv"
     get_breads_url = f"https://{HOST}/deta/get_items_csv"
-    # get_items_url = "http://localhost:4200/deta/get_items_csv"
-    # get_breads_url = "http://localhost:4200/deta/get_breads_csv"
     async with ClientSession() as session:
         async with session.get(get_items_url) as response:
             logging.info("sending post request to /get_items_csv")

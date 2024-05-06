@@ -6,7 +6,7 @@ from loggers import DetaLogger
 from deta import Deta
 
 logging = DetaLogger(__name__)
-load_dotenv()
+load_dotenv(True)
 
 
 class DetaBase:
