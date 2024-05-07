@@ -24,12 +24,13 @@ def search_match(pattern, text, empty_place_holder=""):
 
 def orders_from_text(text: str) -> tuple[dict]:
     """
-    returns (items_dict, breads_dict)
+    returns (items_dict, breads_dict, pre_orders_dict)
     """
     # Regex Patterns
     patterns_dict = {
-        "customer": r"مشتری:\s*(.*)",
-        "items": r"(.*)\s*\(([^)]+)\)\s*(#نان)?",
+        "customer_first_name": r"نام:\s*(.*)",
+        "customer_last_name": r"نام خانوادگی:\s*(.*)",
+        "items": r"(.*)\s*\(([^)]+)\)\s*(#نان)?\s*(#پیش)",
         "address": r"آدرس:\s*(.*)",
         "phone_number": r"شماره تماس:\s*(.*)",
         "delivery_way": r"شیوه ارسال:\s*(.*)",
@@ -42,20 +43,26 @@ def orders_from_text(text: str) -> tuple[dict]:
     for field, pattern in patterns_dict.items():
         order_info[field] = search_match(pattern, text)
         logging.info(f"`{field}` extracted from text.")
-
-    order_info["delivery_fee"] = float(order_info["delivery_fee"])
-    order_info["total_fee"] = float(order_info["total_fee"])
+    try:
+        order_info["delivery_fee"] = float(order_info["delivery_fee"])
+        order_info["total_fee"] = float(order_info["total_fee"])
+    except Exception:
+        logging.warning("Could not extract delivery fee and total fee.")
 
     logging.info("Finished extracting data from text.")
 
     items = list()
     breads = list()
+    pre_orders = list()
     for item_match in re.finditer(patterns_dict["items"], text):
-        item_name, item_fee, is_bread = item_match.groups()
+        item_name, item_fee, is_bread, is_pre_order = item_match.groups()
         items.append([item_name, float(item_fee)])
 
         if is_bread == "#نان":
             breads.append([item_name, float(item_fee)])
+
+        if is_pre_order == "#پیش":
+            pre_orders.append([item_name, float(item_fee)])
 
     tehran_time = tehran_time_now()
 
@@ -68,4 +75,7 @@ def orders_from_text(text: str) -> tuple[dict]:
     breads_dict = items_dict.copy()
     breads_dict["items"] = breads
 
-    return items_dict, breads_dict
+    pre_orders_dict = items_dict.copy()
+    pre_orders_dict["items"] = pre_orders
+
+    return items_dict, breads_dict, pre_orders_dict

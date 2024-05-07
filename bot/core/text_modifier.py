@@ -20,7 +20,7 @@ def raw_dict_to_message(order: dict) -> str:
 
     text = ""
 
-    customer = order["customer"]
+    customer = f"{order['customer_first_name']} {order['customer_last_name']}"
     text += f"👤 مشتری: {customer}\n\n"
 
     text += "🛒 "  # اقلام:\n"

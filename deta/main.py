@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
     global items_db, breads_db, pre_orders_db, items_deta_drive, breads_deta_drive, pre_orders_deta_drive
     items_db = DetaBase("items_db")
     breads_db = DetaBase("breads_db")
-    pre_orders_db = DetaBase("items_db")
+    pre_orders_db = DetaBase("preorders_db")
 
     items_deta_drive = DetaDrive("items")
     breads_deta_drive = DetaDrive("breads")
@@ -117,7 +117,7 @@ async def update_csv():
 
     if pre_orders_new_rows:
         await core_update_csv(
-            drive=pre_orders_deta_drive, csv_name="preorders.csv", new_rows=pre_orders_new_rows
+            drive=pre_orders_deta_drive, csv_name="preorders", new_rows=pre_orders_new_rows
         )
 
     await items_db.mark_csv_as_read(items_new_rows)
@@ -162,7 +162,7 @@ async def get_breads_csv():
         "content": FileResponse(csv_bytes, media_type="application/octet-stream"),
     }
 
-@app.get("/get_breads_csv")
+@app.get("/get_preorders_csv")
 async def get_pre_orders_csv():
     csv_bytes = pre_orders_deta_drive.get_last_csv()
     csv_name = pre_orders_deta_drive.get_last_csv_name()
