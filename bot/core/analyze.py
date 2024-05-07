@@ -18,7 +18,7 @@ def tehran_time_now() -> str:
 def search_match(pattern, text, empty_place_holder=""):
     result = re.search(pattern=pattern, string=text)
     if result:
-        return result.group(1)
+        return str(result.group(1)).strip()
     return empty_place_holder
 
 
